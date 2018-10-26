@@ -18,10 +18,6 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
     use File::LoadLines;
 
     my @lines = loadlines("mydata.txt");
@@ -29,14 +25,62 @@ Perhaps a little code snippet.
 
 =head1 DESCRIPTION
 
+File::LoadLines provides an easy way to load the contents of a text
+file into an array of lines.
+
+It automatically handles ASCII, Latin and UTF-8 text.
+When the file has a BOM, it handles UTF-8, UTF-16 LE and BE, and
+UTF-32 LE and BE.
+
+Recognized line terminators are NL (Unix, Linux), CRLF (DOS, Windows)
+and CR (Mac)
+
 =head1 EXPORT
 
 =head2 loadlines
+
+=head1 FUNCTIONS
+
+=head2 loadlines
+
+    my @lines = loadlines("mydata.txt");
+    my @lines = loadlines("mydata.txt", $options);
+
+Basically, the file is opened, read, decoded and split into lines
+that are returned in the result array. Line terminators are removed.
+
+In scalar context, returns an array reference.
+
+The first argument may be the name of a file, and opened file handle,
+or a reference to a string that contains the data.
+
+The second argument can be used to influence the behaviour.
+It is a hash reference of option settings.
+
+=over
+
+=item split
+
+Enabled by default.
+
+If set to zero, the data is not split into lines but returned as a
+single string.
+
+=item chomp
+
+Enabled by default.
+
+If set to zero, the line terminators are not removed from the
+resultant lines.
+
+=back
 
 =cut
 
 sub loadlines {
     my ( $filename, $options ) = @_;
+    $options->{split} //= 1;
+    $options->{chomp} //= 1;
 
     my $data;			# slurped file data
     my $encoded;		# already encoded
@@ -114,16 +158,21 @@ sub loadlines {
 	}
     }
 
-    return $data if $options->{donotsplit};
+    return $data unless $options->{split};
 
     # Split in lines;
     my @lines;
     $data =~ s/^\s+//s;
-    # Unless empty, make sure there is a final newline.
-    $data .= "\n" if $data =~ /.(?!\r\n|\n|\r)\Z/;
-    # We need to maintain trailing newlines.
-    push( @lines, $1 ) while $data =~ /(.*?)(?:\r\n|\n|\r)/g;
-
+    if ( $options->{chomp} ) {
+	# Unless empty, make sure there is a final newline.
+	$data .= "\n" if $data =~ /.(?!\r\n|\n|\r)\z/;
+	# We need to maintain trailing newlines.
+	push( @lines, $1 ) while $data =~ /(.*?)(?:\r\n|\n|\r)/g;
+    }
+    else {
+	# We need to maintain trailing newlines.
+	push( @lines, $1 ) while $data =~ /(.*?(?:\r\n|\n|\r))/g;
+    }
     return wantarray ? @lines : \@lines;
 }
 
