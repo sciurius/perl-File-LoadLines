@@ -14,7 +14,6 @@ WriteMakefile(
         'Test::More' => 0,
     },
     META_MERGE => {
-      license      => "perl_5",
       resources    => {
         repository => {
           type => 'git',
