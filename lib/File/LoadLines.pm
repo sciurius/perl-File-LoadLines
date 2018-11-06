@@ -7,6 +7,7 @@ use strict;
 use base 'Exporter';
 our @EXPORT = qw( loadlines );
 use Encode;
+use Carp;
 
 =head1 NAME
 
