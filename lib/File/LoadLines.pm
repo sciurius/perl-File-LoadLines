@@ -85,6 +85,9 @@ resultant lines.
 
 sub loadlines {
     my ( $filename, $options ) = @_;
+    croak("Missing filename.\n") unless defined $filename;
+    croak("Invalid options.\n")  if (defined $options && (ref($options) ne "HASH"));
+
     $options->{split} //= 1;
     $options->{chomp} //= 1;
 
