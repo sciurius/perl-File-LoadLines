@@ -1,7 +1,7 @@
 Changes
 MANIFEST
 Makefile.PL
-README
+README.md
 lib/File/LoadLines.pm
 t/00-load.t
 t/10-basic.t

@@ -1,5 +1,7 @@
 Revision history for File-LoadLines
 
+	Change README to README.md.
+
 1.00	2020-12-03
 
 	Fix Carp and Test::Exception dependencies.
