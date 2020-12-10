@@ -1,10 +1,10 @@
 #! perl
 
-# Test explicit encoding.
+# Test auto-sense Latin encoding.
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use utf8;
 
 use File::LoadLines;
@@ -23,10 +23,13 @@ sub testlines {
     foreach ( @lines ) {
 	is( length($_), $lengths[$line], "line $line" );
 	$line++;
+	$tally++ if /¤urø/;
     }
+    is( $tally, 4, "matches" );
 }
 
-# test0.dat: ISO-8859.15 text
+# test0.dat: ISO-8859.1 text
+# Should auto-sense.
 my $o = {};
-testlines( "test_.dat", $o );
-is ( $o->{encoding}, "ASCII", "returned encoding" );
+testlines( "test0.dat", $o );
+is( $o->{encoding}, "ISO-8859-1", "returned encoding" );
