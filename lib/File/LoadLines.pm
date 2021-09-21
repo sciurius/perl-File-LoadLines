@@ -16,7 +16,7 @@ File::LoadLines - Load lines from file
 
 =cut
 
-our $VERSION = '1.021';
+our $VERSION = '1.030';
 
 =head1 SYNOPSIS
 
@@ -215,8 +215,9 @@ sub loadlines {
 	push( @lines, $1 ) while $data =~ /(.*?)(?:\r\n|\n|\r)/g;
     }
     else {
-	# We need to maintain trailing newlines.
 	push( @lines, $1 ) while $data =~ /(.*?(?:\r\n|\n|\r))/g;
+	# In case the last line has no terminator.
+	push( @lines, $1 ) if $data =~ /(?:\r\n|\n|\r)([^\r\n]+)\z/;
     }
     undef $data;
     return wantarray ? @lines : \@lines;

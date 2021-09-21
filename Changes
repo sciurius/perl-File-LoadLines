@@ -1,5 +1,9 @@
 Revision history for File-LoadLines
 
+1.030
+
+	(With chomp=0) Allow final line to not be terminated.
+
 1.021	2021-08-16
 
 	Re-align version numbering.
