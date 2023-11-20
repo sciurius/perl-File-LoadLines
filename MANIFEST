@@ -10,7 +10,8 @@ t/12-basic.t
 t/13-nochomp.t
 t/14-noeof.t
 t/15-blob.t
-t/16-soft.t
+t/16-blob.t
+t/17-softfail.t
 t/20-encoding.t
 t/21-encoding.t
 t/22-encoding.t

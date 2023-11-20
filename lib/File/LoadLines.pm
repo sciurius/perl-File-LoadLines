@@ -4,24 +4,28 @@ package File::LoadLines;
 
 use warnings;
 use strict;
-use base 'Exporter';
+use Exporter qw(import);
 our @EXPORT = qw( loadlines );
+our @EXPORT_OK = qw( loadblob );
 use Encode;
 use Carp;
 use utf8;
 
 =head1 NAME
 
-File::LoadLines - Load lines from file
+File::LoadLines - Load lines from files and network 
 
 =cut
 
-our $VERSION = '1.030';
+our $VERSION = '1.040';
 
 =head1 SYNOPSIS
 
     use File::LoadLines;
     my @lines = loadlines("mydata.txt");
+
+    use File::LoadLines qw(loadblob);
+    my $img = loadblob("https://img.shields.io/badge/Language-Perl-blue");
 
 =head1 DESCRIPTION
 
@@ -39,16 +43,19 @@ UTF-32 LE and BE.
 Recognized line terminators are NL (Unix, Linux), CRLF (DOS, Windows)
 and CR (Mac)
 
+Function loadblob(), exported on depand, fetches the content and
+returns it without processing, equivalent to File::Slurp and ilk.
+
 =head1 EXPORT
 
-=head2 loadlines
+By default the function loadlines() is exported.
 
 =head1 FUNCTIONS
 
 =head2 loadlines
 
-    my @lines = loadlines("mydata.txt");
-    my @lines = loadlines("mydata.txt", $options);
+    @lines = loadlines("mydata.txt");
+    @lines = loadlines("mydata.txt", $options);
 
 The file is opened, read, decoded and split into lines
 that are returned in the result array. Line terminators are removed.
@@ -176,6 +183,7 @@ sub loadlines {
 	    }
 	    $data = do { local $/; readline(\*FILE) };
 	    # warn("$filename³: len=", length($data), "\n");
+	    close(FILE);
 	}
 	else {
 	    my $f;
@@ -274,6 +282,25 @@ sub loadlines {
     }
     undef $data;
     return wantarray ? @lines : \@lines;
+}
+
+=head2 loadblob
+
+    use File::LoadLines qw(loadblob);
+    $rawdata = loadblob("raw.dat");
+    $rawdata = loadblob("raw.dat", $options);
+
+This is equivalent to calling loadlines() with C<< blob=>1 >> in the options.
+
+=cut
+
+sub loadblob {
+    my ( $filename, $options ) = @_;
+    croak("Missing filename.\n") unless defined $filename;
+    croak("Invalid options.\n")
+      if defined($options) && ref($options) ne "HASH";
+    $options //= {};
+    loadlines( $filename, { blob => 1, %$options } );
 }
 
 =head1 SEE ALSO
