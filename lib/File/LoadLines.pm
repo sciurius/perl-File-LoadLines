@@ -17,7 +17,7 @@ File::LoadLines - Load lines from files and network
 
 =cut
 
-our $VERSION = '1.040';
+our $VERSION = '1.041';
 
 =head1 SYNOPSIS
 
@@ -181,13 +181,14 @@ sub loadlines {
 		$options->{error} = "$!", return if $options->{fail} eq "soft";
 		croak("$filename: $!\n");
 	    }
+	    binmode FILE => ':raw';
 	    $data = do { local $/; readline(\*FILE) };
 	    # warn("$filename³: len=", length($data), "\n");
 	    close(FILE);
 	}
 	else {
 	    my $f;
-	    unless ( open( $f, '<', $filename ) ) {
+	    unless ( open( $f, '<:raw', $filename ) ) {
 		$options->{error} = "$!", return if $options->{fail} eq "soft";
 		croak("$filename: $!\n");
 	    }
