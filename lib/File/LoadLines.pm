@@ -17,7 +17,7 @@ File::LoadLines - Load lines from files and network
 
 =cut
 
-our $VERSION = '1.041';
+our $VERSION = '1.042';
 
 =head1 SYNOPSIS
 
@@ -149,6 +149,7 @@ sub loadlines {
     }
     elsif ( $filename eq '-' ) {
 	$filename = "__STDIN__";
+	binmode( $filename, ':raw' );
 	$data = do { local $/; <STDIN> };
     }
     elsif ( $filename =~ /^https?:/ ) {

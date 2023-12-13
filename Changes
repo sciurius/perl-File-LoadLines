@@ -1,5 +1,9 @@
 Revision history for File-LoadLines
 
+1.042	2023-12-13
+
+	More encoding testing.
+
 1.041	2023-12-10
 
 	Fix nochomp (MS Windows only).
