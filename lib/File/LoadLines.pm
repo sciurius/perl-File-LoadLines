@@ -17,7 +17,7 @@ File::LoadLines - Load lines from files and network
 
 =cut
 
-our $VERSION = '1.042';
+our $VERSION = '1.044';
 
 =head1 SYNOPSIS
 
@@ -65,7 +65,8 @@ In scalar context, returns an array reference.
 The first argument may be the name of a file, an opened file handle,
 or a reference to a string that contains the data. If the file name
 starts with C<"http:"> or C<"https:"> the data will be retrieved using
-LWP.
+LWP. L<Data URLs|https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs> like C<"data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=="> are
+also supported.
 
 The second argument can be used to influence the behaviour.
 It is a hash reference of option settings.
@@ -149,7 +150,7 @@ sub loadlines {
     }
     elsif ( $filename eq '-' ) {
 	$filename = "__STDIN__";
-	binmode( $filename, ':raw' );
+	binmode( STDIN, ':raw' );
 	$data = do { local $/; <STDIN> };
     }
     elsif ( $filename =~ /^https?:/ ) {
@@ -165,6 +166,45 @@ sub loadlines {
 	}
 	else {
 	    croak("$filename: ", $res->status_line);
+	}
+    }
+    elsif ( $filename =~ /^data:/ ) {
+	unless ( $filename =~ m! ^ data:
+				 (?<mediatype> .*? )
+				 ,
+				 (?<data>      .*  ) $
+			  !sx ) {
+	    if ( $options->{fail} eq "soft" ) {
+		$options->{error} = "Malformed inline data";
+		return;
+	    }
+	    else {
+		croak("Malformed inline data");
+	    }
+	}
+	$data = $+{data};
+	$filename = "__DATA__";
+	my $mediatype = $+{mediatype};
+	my $enc = "";
+	if ( $mediatype && $mediatype =~ /^(.*);base64$/ ) {
+	    $mediatype = $1;
+	    $enc = "base64";
+	}
+	$options->{mediatype} = $mediatype if $mediatype;
+	if ( ! $enc ) {
+	    # URL encoded.
+	    $data = $+{data};
+	    $data =~ s/\%([0-9a-f][0-9a-f])/chr(hex($1))/ige;
+	}
+	else {
+	    # Base64.
+	    require MIME::Base64;
+	    $data = MIME::Base64::decode($data);
+	}
+	if ( $mediatype && $mediatype =~ /;charset=([^;]*)/ ) {
+	    $data = decode( $1, $data );
+	    $options->{encoding} = $1;
+	    $encoded++;
 	}
     }
     else {
@@ -205,7 +245,7 @@ sub loadlines {
     }
     elsif ( $encoded ) {
 	# Nothing to do, already dealt with.
-	$options->{encoding} = 'Perl';
+	$options->{encoding} //= 'Perl';
     }
 
     # Detect Byte Order Mark.
@@ -302,7 +342,8 @@ sub loadblob {
     croak("Invalid options.\n")
       if defined($options) && ref($options) ne "HASH";
     $options //= {};
-    loadlines( $filename, { blob => 1, %$options } );
+    $options->{blob} = 1;
+    loadlines( $filename, $options );
 }
 
 =head1 SEE ALSO
@@ -343,7 +384,7 @@ GitHub.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2018,2020,2023 Johan Vromans, all rights reserved.
+Copyright 2018,2020,2024 Johan Vromans, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

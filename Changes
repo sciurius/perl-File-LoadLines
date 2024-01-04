@@ -1,5 +1,13 @@
 Revision history for File-LoadLines
 
+1.044
+
+	Add support for data URLs.
+
+1.043	2023-12-14
+
+	Fix typo.
+
 1.042	2023-12-13
 
 	More encoding testing.
