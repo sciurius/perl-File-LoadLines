@@ -17,7 +17,7 @@ File::LoadLines - Load lines from files and network
 
 =cut
 
-our $VERSION = '1.044';
+our $VERSION = '1.045';
 
 =head1 SYNOPSIS
 
@@ -63,9 +63,11 @@ that are returned in the result array. Line terminators are removed.
 In scalar context, returns an array reference.
 
 The first argument may be the name of a file, an opened file handle,
-or a reference to a string that contains the data. If the file name
-starts with C<"http:"> or C<"https:"> the data will be retrieved using
-LWP. L<Data URLs|https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs> like C<"data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=="> are
+or a reference to a string that contains the data.
+The name of a file on disk may start with C<"file://">, this is ignored.
+If the name starts with C<"http:"> or C<"https:"> the data will be
+retrieved using LWP.
+L<Data URLs|https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs> like C<"data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=="> are
 also supported.
 
 The second argument can be used to influence the behaviour.
@@ -209,6 +211,7 @@ sub loadlines {
     }
     else {
 	my $name = $filename;
+	$name =~ s;^file://;;;
 	$filename = decode_utf8($name);
 	# On MS Windows, non-latin (wide) filenames need special treatment.
 	if ( $filename ne $name && $^O =~ /mswin/i ) {
