@@ -35,7 +35,7 @@ sub test {
 	$d .= "," . uri_escape($t);
     }
     my $opt = { fail => "soft" };
-    #diag($d);
+    #note($d);
     my @lines = loadlines( $d, $opt );
     ok( !defined $opt->{error}, "no error" );
     is( scalar(@lines), 1, "one line" );
