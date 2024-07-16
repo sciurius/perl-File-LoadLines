@@ -133,6 +133,7 @@ sub loadlines {
     $options->{blob}  //= 0;
     $options->{split} //= !$options->{blob};
     $options->{chomp} //= !$options->{blob};
+    $options->{fail}  //= "hard";
 
     my $data;			# slurped file data
     my $encoded;		# already encoded
@@ -233,8 +234,9 @@ sub loadlines {
 	else {
 	    my $f;
 	    unless ( open( $f, '<:raw', $filename ) ) {
-		$options->{error} = "$!", return if $options->{fail} eq "soft";
-		croak("$filename: $!\n");
+		$options->{error} = "$!", return
+		  if $options->{fail} eq "soft";
+		croak("$name: $!\n");
 	    }
 	    $data = do { local $/; <$f> };
 	}
