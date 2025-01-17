@@ -17,7 +17,7 @@ File::LoadLines - Load lines from files and network
 
 =cut
 
-our $VERSION = '1.046';
+our $VERSION = '1.047';
 
 =head1 SYNOPSIS
 
@@ -140,7 +140,7 @@ sub loadlines {
 
     # Gather data from the input.
     if ( ref($filename) ) {
-	if ( ref($filename) eq 'GLOB' ) {
+	if ( ref($filename) eq 'GLOB' || ref($filename) eq 'IO::File' ) {
 	    binmode( $filename, ':raw' );
 	    $data = do { local $/; <$filename> };
 	    $filename = "__GLOB__";
